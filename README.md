@@ -48,7 +48,6 @@ Không đưa API secret vào JSP hoặc JavaScript.
 4. Run on Server.
 5. Truy cập `http://localhost:8080/Manager_Edu_Project/`.
 
-Tài khoản mẫu: `admin / Admin@123`.
 
 ## Build
 
