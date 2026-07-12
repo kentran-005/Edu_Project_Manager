@@ -2,6 +2,8 @@ package com.poly.manager.controller;
 
 import com.poly.manager.dao.*;
 import com.poly.manager.model.User;
+import com.poly.manager.util.RequestUtils;
+import com.poly.manager.util.WebUtils;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -21,8 +23,11 @@ public class RegistrationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
         User user=(User)req.getSession().getAttribute("currentUser");
         try{
-            groups.review(Long.parseLong(req.getParameter("id")),topics.lecturerIdByUser(user.getId()),
-                req.getParameter("status"),req.getParameter("note"));
+            Long lecturerId=topics.lecturerIdByUser(user.getId());
+            if(lecturerId==null) throw new IllegalArgumentException("Tài khoản chưa được gắn hồ sơ giảng viên");
+            groups.review(RequestUtils.longValue(req,"id","Thiếu đăng ký cần xử lý"),lecturerId,
+                RequestUtils.text(req,"status"),RequestUtils.text(req,"note"));
+            WebUtils.flashMessage(req,"Đã xử lý đăng ký đề tài");
             resp.sendRedirect(req.getContextPath()+"/lecturer/registrations");
         }catch(Exception ex){req.setAttribute("error",ex.getMessage());doGet(req,resp);}
     }

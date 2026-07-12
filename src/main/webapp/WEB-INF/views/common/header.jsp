@@ -1,39 +1,81 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="jakarta.tags.core"%>
-<c:url value="/assets/css/app.css" var="appCss" />
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:url value="/assets/css/app.css" var="appCss"/>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Quản lý đồ án</title>
-<link rel="stylesheet" href="${appCss}">
-</head>
-<body>
-	<nav>
-		<strong>Edu Project</strong>
-		<div>
-			<a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
-			<a href="${pageContext.request.contextPath}/topics">Đề tài</a> <a
-				href="${pageContext.request.contextPath}/groups">Nhóm</a>
+<link rel="stylesheet" href="${appCss}"></head><body>
+<div class="admin-shell">
+	<aside class="admin-sidebar">
+		<a class="admin-logo" href="${pageContext.request.contextPath}/dashboard">
+			<span class="admin-logo-icon">▰</span>
+			<span>EDU PROJECT<small>MANAGER</small></span>
+		</a>
+		<div class="admin-profile">
+			<div class="admin-avatar">
+				<c:choose><c:when test="${sessionScope.currentUser.role=='LECTURER'}">GV</c:when><c:when test="${sessionScope.currentUser.role=='STUDENT'}">SV</c:when><c:otherwise>A</c:otherwise></c:choose>
+			</div>
+			<div>
+				<strong>${sessionScope.currentUser.fullName}</strong>
+				<span>
+					<c:choose>
+						<c:when test="${sessionScope.currentUser.role=='ADMIN'}">Quản trị hệ thống</c:when>
+						<c:when test="${sessionScope.currentUser.role=='LECTURER'}">Giảng viên hướng dẫn</c:when>
+						<c:otherwise>Sinh viên</c:otherwise>
+					</c:choose>
+				</span>
+				<small><i></i> Online</small>
+			</div>
+		</div>
+		<nav class="admin-menu">
+			<a class="active" href="${pageContext.request.contextPath}/dashboard"><span>⌂</span> Dashboard</a>
 			<c:if test="${sessionScope.currentUser.role=='ADMIN'}">
-				<a href="${pageContext.request.contextPath}/admin/users">Tài
-					khoản</a>
-				<a href="${pageContext.request.contextPath}/admin/classes">Lớp</a>
-				<a href="${pageContext.request.contextPath}/admin/semesters">Học
-					kỳ</a>
+			<p>QUẢN LÝ HỆ THỐNG</p>
+			<a href="${pageContext.request.contextPath}/admin/users"><span>👥</span> Quản lý tài khoản</a>
+			<a href="${pageContext.request.contextPath}/admin/classes"><span>🏫</span> Quản lý lớp</a>
+			<a href="${pageContext.request.contextPath}/admin/semesters"><span>▦</span> Quản lý học kỳ</a>
+			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Xem đề tài</a>
+			<a href="${pageContext.request.contextPath}/groups"><span>👥</span> Xem nhóm / tiến độ</a>
 			</c:if>
 			<c:if test="${sessionScope.currentUser.role=='LECTURER'}">
-				<a href="${pageContext.request.contextPath}/lecturer/registrations">Duyệt
-					đăng ký</a>
+			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Đề tài của tôi</a>
+			<a href="${pageContext.request.contextPath}/lecturer/registrations"><span>☑</span> Duyệt đăng ký đề tài</a>
+			<a href="${pageContext.request.contextPath}/groups"><span>👥</span> Chi tiết nhóm hướng dẫn</a>
+			<a href="${pageContext.request.contextPath}/groups"><span>💬</span> Nhận xét</a>
+			<a href="${pageContext.request.contextPath}/groups"><span>☆</span> Chấm điểm</a>
 			</c:if>
 			<c:if test="${sessionScope.currentUser.role=='STUDENT'}">
-				<a href="${pageContext.request.contextPath}/grades">Điểm</a>
+			<p>QUẢN LÝ ĐỒ ÁN</p>
+			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Đề tài của tôi</a>
+			<a href="${pageContext.request.contextPath}/groups"><span>👥</span> Nhóm của tôi</a>
+			<a href="${pageContext.request.contextPath}/groups"><span>▦</span> Lịch trình</a>
+			<a href="${pageContext.request.contextPath}/groups"><span>▣</span> Báo cáo / Bài nộp</a>
+			<a href="${pageContext.request.contextPath}/grades"><span>✿</span> Đánh giá</a>
+			<p>TÀI LIỆU</p>
+			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Tài liệu tham khảo</a>
+			<a href="${pageContext.request.contextPath}/dashboard"><span>🔔</span> Thông báo</a>
+			<p>HỖ TRỢ</p>
+			<a href="${pageContext.request.contextPath}/dashboard"><span>?</span> Hướng dẫn</a>
+			<a href="${pageContext.request.contextPath}/dashboard"><span>☎</span> Liên hệ hỗ trợ</a>
 			</c:if>
-			<a href="${pageContext.request.contextPath}/logout">Đăng xuất</a>
-		</div>
-	</nav>
-	<main class="container">
-		<c:if test="${not empty error}">
-			<div class="error">${error}</div>
-		</c:if>
+		</nav>
+		<a class="admin-logout" href="${pageContext.request.contextPath}/logout"><span>↪</span> Đăng xuất</a>
+	</aside>
+	<section class="admin-main">
+		<header class="admin-topbar">
+			<button type="button" class="menu-toggle">☰</button>
+			<div class="admin-topbar-right">
+				<c:if test="${sessionScope.currentUser.role=='LECTURER'}">
+					<select class="semester-picker"><option>Học kỳ 2, 2023 - 2024</option></select>
+				</c:if>
+				<div class="notification-dot">🔔<span><c:choose><c:when test="${sessionScope.currentUser.role=='STUDENT'}">2</c:when><c:otherwise>3</c:otherwise></c:choose></span></div>
+				<div class="top-avatar">
+					<c:choose><c:when test="${sessionScope.currentUser.role=='LECTURER'}">GV</c:when><c:when test="${sessionScope.currentUser.role=='STUDENT'}">SV</c:when><c:otherwise>A</c:otherwise></c:choose>
+				</div>
+				<span>${sessionScope.currentUser.fullName}</span>
+				<small>⌄</small>
+			</div>
+		</header>
+		<main class="admin-content">
+<c:if test="${not empty error}"><div class="error">${error}</div></c:if>
+<c:if test="${not empty message}"><div class="success-message">${message}</div></c:if>

@@ -30,7 +30,9 @@
 		<th>Họ tên</th>
 		<th>Email</th>
 		<th>Vai trò</th>
+		<th>Mã/Lớp/Bộ môn</th>
 		<th>Trạng thái</th>
+		<th>Thao tác</th>
 	</tr>
 	<c:forEach var="u" items="${users}">
 		<tr>
@@ -38,7 +40,23 @@
 			<td>${u.full_name}</td>
 			<td>${u.email}</td>
 			<td>${u.role}</td>
+			<td>
+				<c:if test="${u.role=='STUDENT'}">${u.student_code} · ${u.class_code}</c:if>
+				<c:if test="${u.role=='LECTURER'}">${u.lecturer_code} · ${u.department}</c:if>
+				<c:if test="${u.role=='ADMIN'}">Quản trị</c:if>
+			</td>
 			<td>${u.status}</td>
+			<td>
+				<form method="post" action="${pageContext.request.contextPath}/admin/user-status" class="inline-form">
+					<input type="hidden" name="id" value="${u.id}">
+					<select name="status">
+						<c:choose><c:when test="${u.status=='ACTIVE'}"><option selected>ACTIVE</option></c:when><c:otherwise><option>ACTIVE</option></c:otherwise></c:choose>
+						<c:choose><c:when test="${u.status=='INACTIVE'}"><option selected>INACTIVE</option></c:when><c:otherwise><option>INACTIVE</option></c:otherwise></c:choose>
+						<c:choose><c:when test="${u.status=='LOCKED'}"><option selected>LOCKED</option></c:when><c:otherwise><option>LOCKED</option></c:otherwise></c:choose>
+					</select>
+					<button>Cập nhật</button>
+				</form>
+			</td>
 		</tr>
 	</c:forEach>
 </table>

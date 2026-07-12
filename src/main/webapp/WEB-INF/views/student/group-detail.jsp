@@ -10,6 +10,9 @@
 	<p>
 		<b>Trạng thái:</b> ${group.status}
 	</p>
+	<p>
+		<b>Mã mời:</b> ${group.invite_code}
+	</p>
 	<a
 		href="${pageContext.request.contextPath}/pdf/group?groupId=${group.id}">Xuất
 		PDF tiến độ</a>
@@ -60,7 +63,14 @@
 					<option>PROGRESS</option>
 					<option>FINAL_REPORT</option>
 					<option>SOURCE_CODE</option>
-					<option>OTHER</option></select> <label>File</label><input type="file"
+					<option>OTHER</option></select>
+				<label>Gắn với báo cáo tiến độ</label><select name="reportId">
+					<option value="">-- Không gắn báo cáo --</option>
+					<c:forEach var="r" items="${reports}">
+						<option value="${r.id}">Tuần ${r.week_number} - ${r.title}</option>
+					</c:forEach>
+				</select>
+				<label>File</label><input type="file"
 					name="file" required>
 				<button>Upload Cloudinary</button>
 			</form>
@@ -113,7 +123,20 @@
 			<h3>Nhận xét</h3>
 			<form method="post"
 				action="${pageContext.request.contextPath}/feedbacks">
-				<input type="hidden" name="groupId" value="${group.id}"><label>Nội
+				<input type="hidden" name="groupId" value="${group.id}">
+				<label>Nhận xét cho báo cáo</label><select name="reportId">
+					<option value="">-- Không chọn báo cáo --</option>
+					<c:forEach var="r" items="${reports}">
+						<option value="${r.id}">Tuần ${r.week_number} - ${r.title}</option>
+					</c:forEach>
+				</select>
+				<label>Nhận xét cho bài nộp</label><select name="submissionId">
+					<option value="">-- Không chọn bài nộp --</option>
+					<c:forEach var="s" items="${submissions}">
+						<option value="${s.id}">${s.file_name}</option>
+					</c:forEach>
+				</select>
+				<label>Nội
 					dung</label>
 				<textarea name="content" required></textarea>
 				<button>Gửi nhận xét</button>
@@ -145,5 +168,24 @@
 			<b>${f.lecturer_name}:</b> ${f.content}
 		</p>
 	</c:forEach>
+</div>
+<div class="card">
+	<h3>Điểm</h3>
+	<table>
+		<tr>
+			<th>Sinh viên</th>
+			<th>Điểm</th>
+			<th>Nhận xét</th>
+			<th>Trạng thái</th>
+		</tr>
+		<c:forEach var="gr" items="${grades}">
+			<tr>
+				<td>${gr.student_code} - ${gr.student_name}</td>
+				<td>${gr.score}</td>
+				<td>${gr.comment}</td>
+				<td>${gr.status}</td>
+			</tr>
+		</c:forEach>
+	</table>
 </div>
 <%@ include file="../common/footer.jsp"%>

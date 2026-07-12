@@ -12,7 +12,7 @@ public class EncodingFilter implements Filter {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String path=((HttpServletRequest)request).getRequestURI();
-        if(!path.contains("/assets/")) response.setContentType("text/html;charset=UTF-8");
+        if(!path.contains("/assets/") && !path.contains("/pdf/")) response.setContentType("text/html;charset=UTF-8");
         chain.doFilter(request,response);
     }
 }

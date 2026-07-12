@@ -2,6 +2,8 @@ package com.poly.manager.controller;
 
 import com.poly.manager.dao.*;
 import com.poly.manager.model.User;
+import com.poly.manager.util.RequestUtils;
+import com.poly.manager.util.WebUtils;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -39,15 +41,25 @@ public class GroupServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
         User user=(User)req.getSession().getAttribute("currentUser");
+        if(!"STUDENT".equals(user.getRole())){resp.sendError(403);return;}
         try{
             String action=req.getParameter("action");
             Long studentId=groups.studentIdByUser(user.getId());
-            if("create".equals(action)) groups.create(studentId,Long.parseLong(req.getParameter("semesterId")),req.getParameter("groupName"));
-            else if("join".equals(action)) groups.join(studentId,req.getParameter("inviteCode").trim().toUpperCase());
-            else if("register".equals(action)) groups.register(Long.parseLong(req.getParameter("groupId")),
-                Long.parseLong(req.getParameter("topicId")),req.getParameter("note"),user.getId());
+            if(studentId==null) throw new IllegalArgumentException("Tài khoản chưa được gắn hồ sơ sinh viên");
+            if("create".equals(action)) groups.create(studentId,
+                RequestUtils.longValue(req,"semesterId","Vui lòng chọn học kỳ trước khi tạo nhóm"),
+                RequestUtils.text(req,"groupName"));
+            else if("join".equals(action)) groups.join(studentId,RequestUtils.text(req,"inviteCode").toUpperCase());
+            else if("register".equals(action)) groups.register(
+                RequestUtils.longValue(req,"groupId","Vui lòng chọn nhóm đăng ký đề tài"),
+                RequestUtils.longValue(req,"topicId","Vui lòng chọn đề tài cần đăng ký"),
+                RequestUtils.text(req,"note"),user.getId());
             else {resp.sendError(400);return;}
+            WebUtils.flashMessage(req,"Thao tác nhóm thành công");
             resp.sendRedirect(req.getContextPath()+"/groups");
-        }catch(Exception ex){req.setAttribute("error",ex.getMessage());doGet(req,resp);}
+        }catch(Exception ex){
+            req.setAttribute("error",ex.getMessage());
+            doGet(req,resp);
+        }
     }
 }

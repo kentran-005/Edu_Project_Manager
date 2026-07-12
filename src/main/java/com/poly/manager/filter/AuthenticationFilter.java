@@ -12,7 +12,7 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest request=(HttpServletRequest)req;
         HttpServletResponse response=(HttpServletResponse)res;
         String path=request.getRequestURI().substring(request.getContextPath().length());
-        boolean publicPath=path.equals("/") || path.equals("/login")
+        boolean publicPath=path.equals("/") || path.equals("/login") || path.equals("/register")
             || path.startsWith("/assets/") || path.equals("/favicon.ico");
         HttpSession session=request.getSession(false);
         if(publicPath || (session!=null && session.getAttribute("currentUser")!=null)){

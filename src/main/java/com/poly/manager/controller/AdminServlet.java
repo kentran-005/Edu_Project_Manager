@@ -3,6 +3,8 @@ package com.poly.manager.controller;
 import com.poly.manager.dao.*;
 import com.poly.manager.model.User;
 import com.poly.manager.util.PasswordUtils;
+import com.poly.manager.util.RequestUtils;
+import com.poly.manager.util.WebUtils;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -39,19 +41,29 @@ public class AdminServlet extends HttpServlet {
                 u.setPhone(req.getParameter("phone"));u.setRole(req.getParameter("role"));
                 users.create(u,req.getParameter("code"),longOrNull(req.getParameter("classId")),
                     req.getParameter("department"),req.getParameter("academicRank"));
+                WebUtils.flashMessage(req,"Thêm tài khoản thành công");
             }else if("/classes".equals(path)){
                 admin.createClass(req.getParameter("code"),req.getParameter("name"),req.getParameter("major"),
                     intOrNull(req.getParameter("intakeYear")),longOrNull(req.getParameter("advisorId")));
+                WebUtils.flashMessage(req,"Thêm lớp thành công");
             }else if("/semesters".equals(path)){
                 admin.createSemester(req.getParameter("code"),req.getParameter("name"),
                     LocalDate.parse(req.getParameter("startDate")),LocalDate.parse(req.getParameter("endDate")),
                     dateOrNull(req.getParameter("registrationDeadline")),req.getParameter("status"));
+                WebUtils.flashMessage(req,"Thêm học kỳ thành công");
             }else if("/user-status".equals(path)){
-                users.changeStatus(Long.parseLong(req.getParameter("id")),req.getParameter("status"));
+                users.changeStatus(RequestUtils.longValue(req,"id","Thiếu tài khoản cần cập nhật trạng thái"),req.getParameter("status"));
                 path="/users";
+                WebUtils.flashMessage(req,"Cập nhật trạng thái tài khoản thành công");
             }else{resp.sendError(404);return;}
             resp.sendRedirect(req.getContextPath()+"/admin"+path);
-        }catch(Exception ex){req.setAttribute("error",ex.getMessage());doGet(req,resp);}
+        }catch(Exception ex){
+            req.setAttribute("error",ex.getMessage());
+            if("/user-status".equals(path)){
+                WebUtils.flashError(req,ex.getMessage());
+                resp.sendRedirect(req.getContextPath()+"/admin/users");
+            }else doGet(req,resp);
+        }
     }
     private String path(HttpServletRequest req){String p=req.getPathInfo();return p==null?"/":p;}
     private Long longOrNull(String v){return v==null||v.trim().isEmpty()?null:Long.valueOf(v);}

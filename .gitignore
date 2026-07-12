@@ -1,1 +1,13 @@
-/target/
+target/
+.DS_Store
+
+# Eclipse local workspace files
+.metadata/
+.recommenders/
+
+# Maven dependencies are declared in pom.xml, do not commit copied jars
+src/main/webapp/WEB-INF/lib/*.jar
+
+# Runtime/log/temp files
+*.log
+*.tmp

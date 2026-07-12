@@ -3,6 +3,7 @@ package com.poly.manager.controller;
 import com.poly.manager.dao.*;
 import com.poly.manager.model.User;
 import com.poly.manager.service.PdfService;
+import com.poly.manager.util.RequestUtils;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -12,7 +13,7 @@ import java.io.IOException;
 public class PdfServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
         try{
-            long groupId=Long.parseLong(req.getParameter("groupId"));
+            long groupId=RequestUtils.longValue(req,"groupId","Thiếu nhóm cần xuất PDF");
             User user=(User)req.getSession().getAttribute("currentUser");
             GroupDao groups=new GroupDao();
             boolean allowed="ADMIN".equals(user.getRole())
@@ -20,6 +21,7 @@ public class PdfServlet extends HttpServlet {
                 || ("STUDENT".equals(user.getRole())&&groups.membership(groupId,user.getId())!=null);
             if(!allowed){resp.sendError(403);return;}
             ReportDao reports=new ReportDao();
+            if(groups.find(groupId)==null){resp.sendError(404);return;}
             byte[] pdf=new PdfService().groupProgress(groups.find(groupId),groups.members(groupId),
                 reports.findByGroup(groupId),reports.feedbackByGroup(groupId));
             resp.setContentType("application/pdf");

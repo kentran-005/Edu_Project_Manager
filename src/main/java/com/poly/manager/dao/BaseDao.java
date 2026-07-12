@@ -71,6 +71,7 @@ public abstract class BaseDao {
         for (int i=0; i<params.length; i++) {
             Object value = params[i];
             if (value instanceof LocalDate) statement.setDate(i+1, java.sql.Date.valueOf((LocalDate)value));
+            else if (value instanceof String) statement.setNString(i+1, ((String)value).trim());
             else statement.setObject(i+1, value);
         }
     }

@@ -7,12 +7,19 @@
 			<form method="post">
 				<input type="hidden" name="action" value="create"> <label>Tên
 					nhóm</label><input name="groupName" required><label>Học kỳ</label><select
-					name="semesterId">
+					name="semesterId" required>
+					<option value="">-- Chọn học kỳ --</option>
 					<c:forEach var="s" items="${semesters}">
 						<option value="${s.id}">${s.name}</option>
 					</c:forEach>
 				</select>
-				<button>Tạo nhóm</button>
+				<c:if test="${empty semesters}">
+					<p class="hint error-text">Chưa có học kỳ. Vui lòng nhờ Admin tạo học kỳ trước.</p>
+				</c:if>
+				<c:choose>
+					<c:when test="${empty semesters}"><button disabled>Tạo nhóm</button></c:when>
+					<c:otherwise><button>Tạo nhóm</button></c:otherwise>
+				</c:choose>
 			</form>
 		</div>
 		<div class="card">
@@ -49,9 +56,12 @@
 		<h3>Đăng ký đề tài</h3>
 		<form method="post">
 			<input type="hidden" name="action" value="register"><label>Nhóm</label><select
-				name="groupId"><c:forEach var="g" items="${groups}">
+				name="groupId" required><option value="">-- Chọn nhóm --</option><c:forEach var="g" items="${groups}">
+					<c:if test="${g.status=='FORMING'}">
 					<option value="${g.id}">${g.group_name}</option>
-				</c:forEach></select> <label>Đề tài</label><select name="topicId"><c:forEach
+					</c:if>
+				</c:forEach></select> <label>Đề tài</label><select name="topicId" required>
+				<option value="">-- Chọn đề tài --</option><c:forEach
 					var="t" items="${topics}">
 					<option value="${t.id}">${t.title}</option>
 				</c:forEach></select> <label>Ghi chú</label>
