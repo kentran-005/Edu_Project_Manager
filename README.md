@@ -48,12 +48,14 @@ Không đưa API secret vào JSP hoặc JavaScript.
 2. Trong Eclipse chọn `File → Import → Maven → Existing Maven Projects`.
 3. Chọn đúng thư mục chứa `pom.xml`.
 4. Sau khi import xong: chuột phải project → `Maven → Update Project...` → tick `Force Update of Snapshots/Releases`.
-5. Kiểm tra `Project Facets`: Java 21, Dynamic Web Module 6.0 hoặc 6.1 tùy bản Eclipse hỗ trợ.
+5. Kiểm tra `Project Facets`: Java 21, Dynamic Web Module 6.0.
 6. Add project vào Apache Tomcat 11.
 7. Run on Server.
 8. Truy cập `http://localhost:8080/Manager_Edu_Project/`.
 
 Lưu ý: không import bằng `General → Existing Projects into Workspace` nếu Eclipse báo lỗi descriptor. Đây là Maven WAR project, nên import bằng Maven để Eclipse tự sinh lại cấu hình cần thiết.
+
+`web.xml` dùng Jakarta Web App 6.0 để tương thích Eclipse WTP. Dự án vẫn chạy trên Tomcat 11 và dùng dependency Jakarta Servlet 6.1 trong Maven.
 
 Nếu Eclipse đã import lỗi trước đó:
 
