@@ -69,11 +69,26 @@
 					<select class="semester-picker"><option>Học kỳ 2, 2023 - 2024</option></select>
 				</c:if>
 				<div class="notification-dot">🔔<span><c:choose><c:when test="${sessionScope.currentUser.role=='STUDENT'}">2</c:when><c:otherwise>3</c:otherwise></c:choose></span></div>
-				<div class="top-avatar">
-					<c:choose><c:when test="${sessionScope.currentUser.role=='LECTURER'}">GV</c:when><c:when test="${sessionScope.currentUser.role=='STUDENT'}">SV</c:when><c:otherwise>A</c:otherwise></c:choose>
-				</div>
-				<span>${sessionScope.currentUser.fullName}</span>
-				<small>⌄</small>
+				<details class="account-menu">
+					<summary aria-label="Mở menu tài khoản">
+						<span class="top-avatar">
+							<c:choose><c:when test="${sessionScope.currentUser.role=='LECTURER'}">GV</c:when><c:when test="${sessionScope.currentUser.role=='STUDENT'}">SV</c:when><c:otherwise>A</c:otherwise></c:choose>
+						</span>
+						<span class="account-name">${sessionScope.currentUser.fullName}</span>
+						<span class="account-chevron">⌄</span>
+					</summary>
+					<div class="account-dropdown">
+						<strong>${sessionScope.currentUser.fullName}</strong>
+						<small>
+							<c:choose>
+								<c:when test="${sessionScope.currentUser.role=='ADMIN'}">Quản trị viên</c:when>
+								<c:when test="${sessionScope.currentUser.role=='LECTURER'}">Giảng viên</c:when>
+								<c:otherwise>Sinh viên</c:otherwise>
+							</c:choose>
+						</small>
+						<a href="${pageContext.request.contextPath}/logout"><span>↪</span> Đăng xuất</a>
+					</div>
+				</details>
 			</div>
 		</header>
 		<main class="admin-content">
