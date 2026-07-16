@@ -44,7 +44,7 @@
 			<form method="post"
 				action="${pageContext.request.contextPath}/reports">
 				<input type="hidden" name="groupId" value="${group.id}"><label>Tuần</label><input
-					type="number" name="weekNumber" required> <label>Tiêu
+					type="number" name="weekNumber" min="1" required> <label>Tiêu
 					đề</label><input name="title" required><label>Đã hoàn thành</label>
 				<textarea name="completedWork" required></textarea>
 				<label>Kế hoạch tiếp theo</label>

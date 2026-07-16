@@ -12,7 +12,7 @@
 			</div>
 			<div>
 				<label>Công nghệ</label><input name="technology"><label>Số
-					thành viên tối đa</label><input type="number" name="maxMembers" value="3"
+					thành viên tối đa</label><input type="number" name="maxMembers" value="3" min="1" max="10"
 					min="1" max="10"> <label>Học kỳ</label><select
 					name="semesterId" required>
 					<option value="">-- Chọn học kỳ --</option>

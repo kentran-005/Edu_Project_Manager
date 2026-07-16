@@ -28,7 +28,7 @@ public class GradeServlet extends HttpServlet {
             Long lecturerId=new TopicDao().lecturerIdByUser(user.getId());
             if(lecturerId==null) throw new IllegalArgumentException("Tài khoản chưa được gắn hồ sơ giảng viên");
             new GradeDao().save(groupId,RequestUtils.longValue(req,"studentId","Vui lòng chọn sinh viên cần chấm"),
-                lecturerId,Double.parseDouble(RequestUtils.text(req,"score")),
+                lecturerId,score(req),
                 RequestUtils.text(req,"comment"),RequestUtils.text(req,"status"));
             WebUtils.flashMessage(req,"Đã lưu điểm");
             resp.sendRedirect(req.getContextPath()+"/groups/"+groupId);
@@ -36,5 +36,9 @@ public class GradeServlet extends HttpServlet {
             WebUtils.flashError(req,ex.getMessage());
             resp.sendRedirect(req.getContextPath()+(groupId>0?"/groups/"+groupId:"/groups"));
         }
+    }
+    private double score(HttpServletRequest req){
+        try{return Double.parseDouble(RequestUtils.text(req,"score"));}
+        catch(NumberFormatException ex){throw new IllegalArgumentException("Điểm phải là một số từ 0 đến 10");}
     }
 }

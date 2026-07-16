@@ -157,7 +157,7 @@
 
                 <div class="form-group">
                     <label>Khóa tuyển sinh</label>
-                    <input type="number" name="intakeYear">
+                    <input type="number" name="intakeYear" min="1990" max="2100" placeholder="Ví dụ: 2024">
                 </div>
 
                 <div class="form-group">

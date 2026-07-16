@@ -17,10 +17,10 @@ public class DashboardDao extends BaseDao {
 
     public Map<String,Object> adminGroupStatus() throws SQLException {
         return one("SELECT " +
-            "SUM(CASE WHEN status='IN_PROGRESS' THEN 1 ELSE 0 END) AS in_progress, " +
-            "SUM(CASE WHEN status='COMPLETED' THEN 1 ELSE 0 END) AS completed, " +
-            "SUM(CASE WHEN status='REGISTERED' THEN 1 ELSE 0 END) AS registered, " +
-            "SUM(CASE WHEN status='FORMING' THEN 1 ELSE 0 END) AS forming, COUNT(*) AS total " +
+            "COALESCE(SUM(CASE WHEN status='IN_PROGRESS' THEN 1 ELSE 0 END),0) AS in_progress, " +
+            "COALESCE(SUM(CASE WHEN status='COMPLETED' THEN 1 ELSE 0 END),0) AS completed, " +
+            "COALESCE(SUM(CASE WHEN status='REGISTERED' THEN 1 ELSE 0 END),0) AS registered, " +
+            "COALESCE(SUM(CASE WHEN status='FORMING' THEN 1 ELSE 0 END),0) AS forming, COUNT(*) AS total " +
             "FROM project_groups");
     }
 
@@ -51,9 +51,9 @@ public class DashboardDao extends BaseDao {
 
     public Map<String,Object> lecturerReportStatus(long userId) throws SQLException {
         return one("SELECT " +
-            "SUM(CASE WHEN x.report_status='REVIEWED' THEN 1 ELSE 0 END) AS reviewed, " +
-            "SUM(CASE WHEN x.report_status='SUBMITTED' THEN 1 ELSE 0 END) AS submitted, " +
-            "SUM(CASE WHEN x.report_status IS NULL THEN 1 ELSE 0 END) AS no_report, COUNT(*) AS total " +
+            "COALESCE(SUM(CASE WHEN x.report_status='REVIEWED' THEN 1 ELSE 0 END),0) AS reviewed, " +
+            "COALESCE(SUM(CASE WHEN x.report_status='SUBMITTED' THEN 1 ELSE 0 END),0) AS submitted, " +
+            "COALESCE(SUM(CASE WHEN x.report_status IS NULL THEN 1 ELSE 0 END),0) AS no_report, COUNT(*) AS total " +
             "FROM (SELECT g.group_id,latest.status AS report_status FROM project_groups g JOIN topics t ON t.topic_id=g.topic_id JOIN lecturers l ON l.lecturer_id=t.lecturer_id " +
             "OUTER APPLY (SELECT TOP 1 pr.status FROM progress_reports pr WHERE pr.group_id=g.group_id ORDER BY pr.week_number DESC,pr.updated_at DESC) latest WHERE l.user_id=?) x",userId);
     }
@@ -73,8 +73,8 @@ public class DashboardDao extends BaseDao {
     }
 
     public Map<String,Object> studentReportStatus(long userId) throws SQLException {
-        return one("SELECT SUM(CASE WHEN pr.status='REVIEWED' THEN 1 ELSE 0 END) AS reviewed, " +
-            "SUM(CASE WHEN pr.status='SUBMITTED' THEN 1 ELSE 0 END) AS submitted, COUNT(pr.progress_report_id) AS total " +
+        return one("SELECT COALESCE(SUM(CASE WHEN pr.status='REVIEWED' THEN 1 ELSE 0 END),0) AS reviewed, " +
+            "COALESCE(SUM(CASE WHEN pr.status='SUBMITTED' THEN 1 ELSE 0 END),0) AS submitted, COUNT(pr.progress_report_id) AS total " +
             "FROM group_members gm JOIN students s ON s.student_id=gm.student_id LEFT JOIN progress_reports pr ON pr.group_id=gm.group_id WHERE s.user_id=?",userId);
     }
 

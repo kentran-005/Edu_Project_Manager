@@ -32,6 +32,9 @@ public class UserDao extends BaseDao {
     public long create(final User user, final String code, final Long classId,
                        final String department, final String academicRank) throws SQLException {
         validateCreate(user, code);
+        if ("STUDENT".equals(user.getRole()) && classId != null
+                && one("SELECT class_id FROM academic_classes WHERE class_id=?", classId) == null)
+            throw new SQLException("Lớp được chọn không tồn tại");
         final long[] id = new long[1];
         transaction(new TransactionWork() {
             public void execute(Connection connection) throws Exception {
@@ -71,6 +74,8 @@ public class UserDao extends BaseDao {
             throw new SQLException("Mã sinh viên/giảng viên là bắt buộc");
         if ("STUDENT".equals(user.getRole()) && existsStudentCode(code.trim()))
             throw new SQLException("Mã sinh viên đã tồn tại");
+        if ("LECTURER".equals(user.getRole()) && one("SELECT lecturer_id FROM lecturers WHERE lecturer_code=?",code.trim()) != null)
+            throw new SQLException("Mã giảng viên đã tồn tại");
     }
 
     private boolean blank(String value) {

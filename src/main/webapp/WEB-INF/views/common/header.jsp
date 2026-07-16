@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:url value="/assets/css/app.css" var="appCss"/>
+<c:set var="currentUri" value="${pageContext.request.requestURI}"/>
 <!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Quản lý đồ án</title>
@@ -28,29 +30,29 @@
 			</div>
 		</div>
 		<nav class="admin-menu">
-			<a class="active" href="${pageContext.request.contextPath}/dashboard"><span>⌂</span> Dashboard</a>
+			<a class="${fn:endsWith(currentUri,'/dashboard') ? 'active' : ''}" href="${pageContext.request.contextPath}/dashboard"><span>⌂</span> Dashboard</a>
 			<c:if test="${sessionScope.currentUser.role=='ADMIN'}">
 			<p>QUẢN LÝ HỆ THỐNG</p>
-			<a href="${pageContext.request.contextPath}/admin/users"><span>👥</span> Quản lý tài khoản</a>
-			<a href="${pageContext.request.contextPath}/admin/classes"><span>🏫</span> Quản lý lớp</a>
-			<a href="${pageContext.request.contextPath}/admin/semesters"><span>▦</span> Quản lý học kỳ</a>
-			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Xem đề tài</a>
-			<a href="${pageContext.request.contextPath}/groups"><span>👥</span> Xem nhóm / tiến độ</a>
+			<a class="${fn:contains(currentUri,'/admin/users') ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/users"><span>👥</span> Quản lý tài khoản</a>
+			<a class="${fn:contains(currentUri,'/admin/classes') ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/classes"><span>🏫</span> Quản lý lớp</a>
+			<a class="${fn:contains(currentUri,'/admin/semesters') ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/semesters"><span>▦</span> Quản lý học kỳ</a>
+			<a class="${fn:contains(currentUri,'/topics') ? 'active' : ''}" href="${pageContext.request.contextPath}/topics"><span>▤</span> Xem đề tài</a>
+			<a class="${fn:contains(currentUri,'/groups') ? 'active' : ''}" href="${pageContext.request.contextPath}/groups"><span>👥</span> Xem nhóm / tiến độ</a>
 			</c:if>
 			<c:if test="${sessionScope.currentUser.role=='LECTURER'}">
-			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Đề tài của tôi</a>
-			<a href="${pageContext.request.contextPath}/lecturer/registrations"><span>☑</span> Duyệt đăng ký đề tài</a>
-			<a href="${pageContext.request.contextPath}/groups"><span>👥</span> Chi tiết nhóm hướng dẫn</a>
+			<a class="${fn:contains(currentUri,'/topics') ? 'active' : ''}" href="${pageContext.request.contextPath}/topics"><span>▤</span> Đề tài của tôi</a>
+			<a class="${fn:contains(currentUri,'/lecturer/registrations') ? 'active' : ''}" href="${pageContext.request.contextPath}/lecturer/registrations"><span>☑</span> Duyệt đăng ký đề tài</a>
+			<a class="${fn:contains(currentUri,'/groups') ? 'active' : ''}" href="${pageContext.request.contextPath}/groups"><span>👥</span> Chi tiết nhóm hướng dẫn</a>
 			<a href="${pageContext.request.contextPath}/groups"><span>💬</span> Nhận xét</a>
 			<a href="${pageContext.request.contextPath}/groups"><span>☆</span> Chấm điểm</a>
 			</c:if>
 			<c:if test="${sessionScope.currentUser.role=='STUDENT'}">
 			<p>QUẢN LÝ ĐỒ ÁN</p>
-			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Đề tài của tôi</a>
-			<a href="${pageContext.request.contextPath}/groups"><span>👥</span> Nhóm của tôi</a>
+			<a class="${fn:contains(currentUri,'/topics') ? 'active' : ''}" href="${pageContext.request.contextPath}/topics"><span>▤</span> Đề tài của tôi</a>
+			<a class="${fn:contains(currentUri,'/groups') ? 'active' : ''}" href="${pageContext.request.contextPath}/groups"><span>👥</span> Nhóm của tôi</a>
 			<a href="${pageContext.request.contextPath}/groups"><span>▦</span> Lịch trình</a>
 			<a href="${pageContext.request.contextPath}/groups"><span>▣</span> Báo cáo / Bài nộp</a>
-			<a href="${pageContext.request.contextPath}/grades"><span>✿</span> Đánh giá</a>
+			<a class="${fn:contains(currentUri,'/grades') ? 'active' : ''}" href="${pageContext.request.contextPath}/grades"><span>✿</span> Đánh giá</a>
 			<p>TÀI LIỆU</p>
 			<a href="${pageContext.request.contextPath}/topics"><span>▤</span> Tài liệu tham khảo</a>
 			<a href="${pageContext.request.contextPath}/dashboard"><span>🔔</span> Thông báo</a>

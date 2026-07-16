@@ -8,6 +8,10 @@ public class GradeDao extends BaseDao {
     public void save(long groupId,long studentId,long lecturerId,double score,String comment,String status) throws SQLException {
         if (score < 0 || score > 10) throw new SQLException("Điểm phải nằm trong khoảng 0 đến 10");
         if (!"DRAFT".equals(status) && !"PUBLISHED".equals(status)) throw new SQLException("Trạng thái điểm không hợp lệ");
+        if(one("SELECT group_member_id FROM group_members WHERE group_id=? AND student_id=?",groupId,studentId)==null)
+            throw new SQLException("Sinh viên không thuộc nhóm được chấm");
+        if(one("SELECT group_id FROM project_groups WHERE group_id=?",groupId)==null)
+            throw new SQLException("Nhóm không tồn tại");
         if(one("SELECT grade_id FROM grades WHERE group_id=? AND student_id=?",groupId,studentId)==null)
             insert("INSERT INTO grades(group_id,student_id,graded_by_id,score,comment,status) VALUES(?,?,?,?,?,?)",
                 groupId,studentId,lecturerId,score,comment,status);
