@@ -65,10 +65,7 @@
 		<header class="admin-topbar">
 			<button type="button" class="menu-toggle">☰</button>
 			<div class="admin-topbar-right">
-				<c:if test="${sessionScope.currentUser.role=='LECTURER'}">
-					<select class="semester-picker"><option>Học kỳ 2, 2023 - 2024</option></select>
-				</c:if>
-				<div class="notification-dot">🔔<span><c:choose><c:when test="${sessionScope.currentUser.role=='STUDENT'}">2</c:when><c:otherwise>3</c:otherwise></c:choose></span></div>
+				<div class="notification-dot" title="Thông báo">🔔</div>
 				<details class="account-menu">
 					<summary aria-label="Mở menu tài khoản">
 						<span class="top-avatar">

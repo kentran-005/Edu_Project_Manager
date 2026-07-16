@@ -1,158 +1,26 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="../common/header.jsp"%>
-
-<div class="role-page-title">
-	<h1>Dashboard</h1>
-	<p>Chào mừng bạn quay trở lại!</p>
-</div>
+<div class="role-page-title"><h1>Dashboard</h1><p>Chào mừng ${sessionScope.currentUser.fullName} quay trở lại!</p></div>
 
 <section class="admin-stat-row student-stats">
-	<a class="admin-stat-card" href="${pageContext.request.contextPath}/topics">
-		<div class="stat-circle">📄</div>
-		<div class="stat-copy">
-			<span>Đề tài của tôi</span>
-			<strong>
-				<c:choose><c:when test="${empty groups}">0</c:when><c:otherwise>1</c:otherwise></c:choose>
-			</strong>
-			<small>Đang thực hiện</small>
-			<em>Xem chi tiết →</em>
-		</div>
-	</a>
-	<a class="admin-stat-card" href="${pageContext.request.contextPath}/groups">
-		<div class="stat-circle">👥</div>
-		<div class="stat-copy">
-			<span>Nhóm của tôi</span>
-			<strong>${groups.size()}</strong>
-			<small>Nhóm tham gia</small>
-			<em>Xem chi tiết →</em>
-		</div>
-	</a>
-	<a class="admin-stat-card" href="${pageContext.request.contextPath}/groups">
-		<div class="stat-circle">▦</div>
-		<div class="stat-copy">
-			<span>Lịch trình sắp tới</span>
-			<strong>2</strong>
-			<small>Công việc đến hạn</small>
-			<em>Xem chi tiết →</em>
-		</div>
-	</a>
-	<a class="admin-stat-card" href="${pageContext.request.contextPath}/groups">
-		<div class="stat-circle">⇧</div>
-		<div class="stat-copy">
-			<span>Báo cáo đã nộp</span>
-			<strong>${groups.size()}</strong>
-			<small>Báo cáo</small>
-			<em>Xem chi tiết →</em>
-		</div>
-	</a>
-	<a class="admin-stat-card" href="${pageContext.request.contextPath}/grades">
-		<div class="stat-circle">★</div>
-		<div class="stat-copy">
-			<span>Điểm hiện tại</span>
-			<strong>
-				<c:choose><c:when test="${empty grades}">--</c:when><c:otherwise>${grades[0].score}</c:otherwise></c:choose><small class="score-scale">/10</small>
-			</strong>
-			<small>Điểm trung bình</small>
-			<em>Xem chi tiết →</em>
-		</div>
-	</a>
+	<a class="admin-stat-card" href="${pageContext.request.contextPath}/topics"><div class="stat-circle">📄</div><div class="stat-copy"><span>Đề tài của tôi</span><strong><c:choose><c:when test="${empty groups}">0</c:when><c:otherwise>1</c:otherwise></c:choose></strong><small>Đề tài đã gắn với nhóm</small><em>Xem chi tiết →</em></div></a>
+	<a class="admin-stat-card" href="${pageContext.request.contextPath}/groups"><div class="stat-circle">👥</div><div class="stat-copy"><span>Nhóm của tôi</span><strong>${studentStats.group_count}</strong><small>Nhóm tham gia</small><em>Xem chi tiết →</em></div></a>
+	<a class="admin-stat-card" href="${pageContext.request.contextPath}/groups"><div class="stat-circle">▦</div><div class="stat-copy"><span>Báo cáo tiến độ</span><strong>${studentStats.report_count}</strong><small>Báo cáo đã tạo</small><em>Xem chi tiết →</em></div></a>
+	<a class="admin-stat-card" href="${pageContext.request.contextPath}/groups"><div class="stat-circle">⇧</div><div class="stat-copy"><span>Bài nộp</span><strong>${studentStats.submission_count}</strong><small>Tệp đã nộp</small><em>Xem chi tiết →</em></div></a>
+	<a class="admin-stat-card" href="${pageContext.request.contextPath}/grades"><div class="stat-circle">★</div><div class="stat-copy"><span>Điểm hiện tại</span><strong><c:choose><c:when test="${empty studentStats.average_score}">--</c:when><c:otherwise>${studentStats.average_score}</c:otherwise></c:choose><small class="score-scale">/10</small></strong><small>Trung bình điểm công bố</small><em>Xem chi tiết →</em></div></a>
 </section>
 
 <section class="student-main-grid">
-	<div class="admin-panel project-info-card">
-		<div class="panel-heading">
-			<h2>Thông tin đề tài</h2>
-			<span class="progress-pill blue">Đang thực hiện</span>
-		</div>
-		<c:choose>
-			<c:when test="${not empty groups}">
-				<c:set var="myGroup" value="${groups[0]}"/>
-				<h3>
-					<c:choose><c:when test="${not empty myGroup.topic_title}">${myGroup.topic_title}</c:when><c:otherwise>Chưa đăng ký đề tài</c:otherwise></c:choose>
-				</h3>
-				<span class="major-badge">Công nghệ thông tin</span>
-				<dl class="project-meta">
-					<dt>Nhóm hiện tại</dt><dd>${myGroup.group_name}</dd>
-					<dt>Vai trò</dt><dd>${myGroup.member_role}</dd>
-					<dt>Trạng thái</dt><dd>${myGroup.status}</dd>
-					<dt>Mô tả ngắn</dt><dd>Theo dõi tiến độ, báo cáo, bài nộp và điểm số của nhóm.</dd>
-				</dl>
-				<a class="soft-button" href="${pageContext.request.contextPath}/groups/${myGroup.id}">Xem chi tiết đề tài →</a>
-			</c:when>
-			<c:otherwise>
-				<div class="table-empty">Bạn chưa có nhóm. Hãy tạo nhóm hoặc tham gia nhóm để bắt đầu.</div>
-				<a class="soft-button" href="${pageContext.request.contextPath}/groups">Tạo / tham gia nhóm →</a>
-			</c:otherwise>
-		</c:choose>
-	</div>
-
-	<div class="admin-panel">
-		<div class="panel-heading">
-			<h2>Thông tin nhóm</h2>
-			<a href="${pageContext.request.contextPath}/groups">Xem chi tiết →</a>
-		</div>
-		<div class="team-box">
-			<div class="team-header">
-				<strong><c:choose><c:when test="${not empty groups}">${groups[0].group_name}</c:when><c:otherwise>Chưa có nhóm</c:otherwise></c:choose></strong>
-				<span class="progress-pill green">${groups.size()} nhóm</span>
-			</div>
-			<ul class="member-list">
-				<li><span>NV</span><strong>${sessionScope.currentUser.fullName}</strong><em>Thành viên</em></li>
-				<li><span>LT</span><strong>Lê Thị B</strong><em>Thành viên</em></li>
-				<li><span>PH</span><strong>Phạm Văn C</strong><em>Thành viên</em></li>
-				<li><span>NH</span><strong>Nguyễn Thị D</strong><em>Thành viên</em></li>
-				<li><span>HT</span><strong>Hoàng Văn E</strong><em>Thành viên</em></li>
-			</ul>
-		</div>
-	</div>
-
-	<div class="admin-panel">
-		<div class="panel-heading">
-			<h2>Tiến độ đồ án</h2>
-		</div>
-		<div class="student-progress">
-			<div class="progress-ring"><span>65%<small>Đang thực hiện</small></span></div>
-			<div class="progress-detail">
-				<h3>Tiến độ tổng thể</h3>
-				<p><i class="blue-dot"></i> Hoàn thành <strong>65% (13/20)</strong></p>
-				<p><i class="yellow-dot"></i> Đang thực hiện <strong>25% (5/20)</strong></p>
-				<p><i class="red-dot"></i> Chưa bắt đầu <strong>10% (2/20)</strong></p>
-			</div>
-		</div>
-		<a class="soft-button" href="${pageContext.request.contextPath}/groups">Xem chi tiết tiến độ →</a>
-	</div>
+	<div class="admin-panel project-info-card"><div class="panel-heading"><h2>Thông tin đề tài</h2></div><c:choose><c:when test="${not empty groups}"><c:set var="myGroup" value="${groups[0]}"/><h3><c:choose><c:when test="${not empty myGroup.topic_title}">${myGroup.topic_title}</c:when><c:otherwise>Chưa được duyệt đề tài</c:otherwise></c:choose></h3><dl class="project-meta"><dt>Nhóm hiện tại</dt><dd>${myGroup.group_name}</dd><dt>Vai trò</dt><dd>${myGroup.member_role}</dd><dt>Trạng thái</dt><dd>${myGroup.status}</dd></dl><a class="soft-button" href="${pageContext.request.contextPath}/groups/${myGroup.id}">Xem chi tiết nhóm →</a></c:when><c:otherwise><p class="table-empty">Bạn chưa thuộc nhóm nào.</p><a class="soft-button" href="${pageContext.request.contextPath}/groups">Tạo / tham gia nhóm →</a></c:otherwise></c:choose></div>
+	<div class="admin-panel"><div class="panel-heading"><h2>Thành viên nhóm</h2><a href="${pageContext.request.contextPath}/groups">Xem chi tiết →</a></div><c:choose><c:when test="${not empty members}"><ul class="member-list"><c:forEach var="member" items="${members}"><li><span>SV</span><strong>${member.full_name}</strong><em>${member.role}</em></li></c:forEach></ul></c:when><c:otherwise><p class="table-empty">Chưa có thành viên nhóm.</p></c:otherwise></c:choose></div>
+	<div class="admin-panel"><div class="panel-heading"><h2>Tiến độ báo cáo</h2></div><div class="status-summary"><p><span class="green-dot"></span> Đã nhận xét <strong>${reportStatus.reviewed}</strong></p><p><span class="yellow-dot"></span> Đã nộp chờ nhận xét <strong>${reportStatus.submitted}</strong></p><p>Tổng báo cáo của nhóm <strong>${reportStatus.total}</strong></p></div><a class="soft-button" href="${pageContext.request.contextPath}/groups">Xem báo cáo tiến độ →</a></div>
 </section>
 
 <section class="admin-dashboard-grid bottom student-bottom-grid">
-	<div class="admin-panel">
-		<div class="panel-heading">
-			<h2>Báo cáo / Bài nộp gần nhất</h2>
-			<a href="${pageContext.request.contextPath}/groups">Xem tất cả →</a>
-		</div>
-		<div class="admin-table-wrap">
-			<table class="admin-data-table">
-				<thead><tr><th>Tên báo cáo / Bài nộp</th><th>Loại</th><th>Ngày nộp</th><th>Trạng thái</th><th>Điểm</th></tr></thead>
-				<tbody>
-					<tr><td>📄 Báo cáo tiến độ tuần 6</td><td>Báo cáo tiến độ</td><td>05/06/2024</td><td><span class="progress-pill green">Đã nộp</span></td><td>8.5/10</td></tr>
-					<tr><td>☁ Thuyết trình giữa kỳ</td><td>Bài thuyết trình</td><td>15/06/2024</td><td><span class="progress-pill blue">Đã chấm</span></td><td>8.0/10</td></tr>
-					<tr><td>📄 Báo cáo tiến độ tuần 4</td><td>Báo cáo tiến độ</td><td>20/05/2024</td><td><span class="progress-pill green">Đã nộp</span></td><td>9.0/10</td></tr>
-					<tr><td>📁 Đề cương chi tiết</td><td>Tài liệu</td><td>10/04/2024</td><td><span class="progress-pill blue">Đã chấm</span></td><td>9.0/10</td></tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
-
-	<div class="admin-panel">
-		<div class="panel-heading">
-			<h2>Lịch trình sắp tới</h2>
-			<a href="${pageContext.request.contextPath}/groups">Xem tất cả →</a>
-		</div>
-		<div class="schedule-list">
-			<div class="schedule-item"><span>▦</span><div><strong>Nộp báo cáo tiến độ tuần 8</strong><small>Tuần 8</small></div><em class="tag red">Quá hạn<br>05/06/2024</em></div>
-			<div class="schedule-item"><span>▦</span><div><strong>Hoàn thành chức năng quản lý sách</strong><small>Tuần 9</small></div><em class="tag yellow">Sắp tới<br>20/06/2024</em></div>
-			<div class="schedule-item"><span>▦</span><div><strong>Nộp báo cáo cuối kỳ</strong><small>Kết thúc</small></div><em class="tag green">Còn 35 ngày<br>15/07/2024</em></div>
-		</div>
-	</div>
+	<div class="admin-panel"><div class="panel-heading"><h2>Báo cáo / Bài nộp gần nhất</h2><a href="${pageContext.request.contextPath}/groups">Xem tất cả →</a></div><div class="admin-table-wrap"><table class="admin-data-table"><thead><tr><th>Tên</th><th>Loại</th><th>Ngày tạo/nộp</th><th>Trạng thái</th></tr></thead><tbody>
+		<c:forEach var="item" items="${recentItems}"><tr><td>${item.item_name}</td><td>${item.item_type}</td><td>${item.item_date}</td><td><span class="progress-pill blue">${item.item_status}</span></td></tr></c:forEach>
+		<c:if test="${empty recentItems}"><tr><td colspan="4" class="table-empty">Chưa có báo cáo hoặc bài nộp.</td></tr></c:if>
+	</tbody></table></div></div>
+	<div class="admin-panel"><div class="panel-heading"><h2>Mốc thời gian học kỳ</h2></div><div class="schedule-list"><c:forEach var="milestone" items="${milestones}"><div class="schedule-item"><span>▦</span><div><strong>${milestone.milestone_name}</strong><small>Dữ liệu từ học kỳ của nhóm</small></div><em class="tag blue">${milestone.milestone_date}</em></div></c:forEach><c:if test="${empty milestones}"><p class="table-empty">Chưa có mốc thời gian học kỳ cho nhóm.</p></c:if></div></div>
 </section>
-
 <%@ include file="../common/footer.jsp"%>

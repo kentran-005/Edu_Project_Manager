@@ -269,6 +269,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .admin-table-wrap{overflow:auto}.admin-data-table{border:0;border-radius:0;box-shadow:none;font-size:12px}
 .admin-data-table th{background:#f8fafc;color:#111827;border-bottom:1px solid #e5e7eb;padding:10px}.admin-data-table td{padding:11px 10px;border-bottom:1px solid #eef2f7}
 .admin-data-table a{font-weight:900}.progress-pill{display:inline-flex;border-radius:5px;padding:5px 8px;font-size:11px;font-weight:900}
+.status-summary{display:grid;gap:11px}.status-summary p{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:11px 13px;background:#f8fafc;border:1px solid #e5eaf3;border-radius:7px;color:#334155}.status-summary strong{color:#0f172a;font-size:17px}.status-summary span{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px}
 .progress-pill.blue{background:#dbeafe;color:#0b63f6}.progress-pill.green{background:#dcfce7;color:#16a34a}.progress-pill.yellow{background:#fef3c7;color:#d97706}.progress-pill.red{background:#fee2e2;color:#ef4444}
 .table-empty{text-align:center;color:#64748b;padding:28px!important}
 .semester-picker,.small-filter{width:auto;margin:0;border-radius:6px;font-size:12px;padding:8px 10px;background:white}
