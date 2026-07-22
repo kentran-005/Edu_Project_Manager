@@ -22,6 +22,11 @@ public class AuthServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath()+"/dashboard");return;
         }
         if("/register".equals(path)){
+            try {
+                req.setAttribute("classes", new com.poly.manager.dao.AdminDao().classes());
+            } catch (Exception e) {
+                // Log or ignore
+            }
             req.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(req,resp);
             return;
         }
@@ -30,10 +35,12 @@ public class AuthServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
         try{
             if ("/register".equals(req.getServletPath())) {
+                String classIdStr = req.getParameter("classId");
+                Long classId = (classIdStr == null || classIdStr.trim().isEmpty()) ? null : Long.valueOf(classIdStr);
                 auth.registerStudent(req.getParameter("username"), req.getParameter("email"),
                     req.getParameter("password"), req.getParameter("confirmPassword"),
                     req.getParameter("fullName"), req.getParameter("phone"),
-                    req.getParameter("studentCode"));
+                    req.getParameter("studentCode"), classId);
                 req.setAttribute("message", "Đăng ký thành công. Anh/chị có thể đăng nhập ngay.");
                 req.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(req, resp);
                 return;

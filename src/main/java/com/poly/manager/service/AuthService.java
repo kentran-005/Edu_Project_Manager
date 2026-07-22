@@ -18,7 +18,7 @@ public class AuthService {
 
     public long registerStudent(String username, String email, String password,
                                 String confirmPassword, String fullName,
-                                String phone, String studentCode) throws SQLException {
+                                String phone, String studentCode, Long classId) throws SQLException {
         username = safe(username);
         email = safe(email);
         fullName = safe(fullName);
@@ -31,6 +31,7 @@ public class AuthService {
         if (!password.equals(confirmPassword)) throw new IllegalArgumentException("Mật khẩu nhập lại không khớp");
         if (fullName.isEmpty()) throw new IllegalArgumentException("Họ tên là bắt buộc");
         if (studentCode.isEmpty()) throw new IllegalArgumentException("Mã sinh viên là bắt buộc");
+        if (classId == null) throw new IllegalArgumentException("Lớp học là bắt buộc");
         if (users.findByUsername(username) != null) throw new IllegalArgumentException("Tên đăng nhập đã tồn tại");
         if (users.findByEmail(email) != null) throw new IllegalArgumentException("Email đã tồn tại");
         if (users.existsStudentCode(studentCode)) throw new IllegalArgumentException("Mã sinh viên đã tồn tại");
@@ -42,7 +43,7 @@ public class AuthService {
         user.setFullName(fullName);
         user.setPhone(phone);
         user.setRole("STUDENT");
-        return users.create(user, studentCode, null, null, null);
+        return users.create(user, studentCode, classId, null, null);
     }
 
     private String safe(String value) {
