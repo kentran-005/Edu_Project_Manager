@@ -93,6 +93,26 @@ public class DashboardDao extends BaseDao {
             "SELECT N'Kết thúc học kỳ',CAST(se.end_date AS DATETIME2) FROM group_members gm JOIN students st ON st.student_id=gm.student_id " +
             "JOIN project_groups g ON g.group_id=gm.group_id JOIN semesters se ON se.semester_id=g.semester_id WHERE st.user_id=? ORDER BY milestone_date",userId,userId);
     }
+
+    public List<Map<String,Object>> studentNotifications(long userId) throws SQLException {
+        return query("SELECT n_title, n_content, n_link, n_date, n_type FROM (" +
+            "SELECT N'Đề tài đã được phê duyệt' AS n_title, N'Đề tài của nhóm ' + g.group_name + N' đã chuyển sang trạng thái hoạt động.' AS n_content, " +
+            "'/groups/' + CAST(g.group_id AS VARCHAR) AS n_link, g.created_at AS n_date, 'SUCCESS' AS n_type " +
+            "FROM project_groups g JOIN group_members gm ON gm.group_id=g.group_id JOIN students s ON s.student_id=gm.student_id WHERE s.user_id=? AND g.status IN ('IN_PROGRESS','COMPLETED') " +
+            "UNION ALL " +
+            "SELECT N'Giảng viên đã gửi phản hồi' AS n_title, f.content AS n_content, '/reports' AS n_link, f.created_at AS n_date, 'INFO' AS n_type " +
+            "FROM feedbacks f JOIN group_members gm ON gm.group_id=f.group_id JOIN students s ON s.student_id=gm.student_id WHERE s.user_id=? " +
+            "UNION ALL " +
+            "SELECT N'Điểm số đã được công bố' AS n_title, N'Giảng viên đã cập nhật điểm số chính thức cho bạn: ' + CAST(gr.score AS VARCHAR) AS n_content, '/grades' AS n_link, gr.updated_at AS n_date, 'GRADE' AS n_type " +
+            "FROM grades gr JOIN students s ON s.student_id=gr.student_id WHERE s.user_id=? AND gr.status='PUBLISHED' " +
+            ") AS notifications ORDER BY n_date DESC", userId, userId, userId);
+    }
+
+    public List<Map<String,Object>> referenceDocuments() throws SQLException {
+        return query("SELECT sub.submission_id AS id, sub.file_name, sub.file_url, sub.type, sub.created_at, g.group_name, t.title AS topic_title " +
+            "FROM submissions sub JOIN project_groups g ON g.group_id=sub.group_id JOIN topics t ON t.topic_id=g.topic_id ORDER BY sub.created_at DESC");
+    }
+
     private long count(String table) throws SQLException {
         return ((Number)one("SELECT COUNT(*) total FROM "+table).get("total")).longValue();
     }

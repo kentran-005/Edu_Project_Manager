@@ -29,6 +29,32 @@ public class ReportDao extends BaseDao {
             "JOIN lecturers l ON l.lecturer_id=f.lecturer_id JOIN users u ON u.user_id=l.user_id " +
             "WHERE f.group_id=? ORDER BY f.created_at DESC",groupId);
     }
+    public List<Map<String,Object>> feedbacksForLecturer(long userId) throws SQLException {
+        return query("SELECT f.feedback_id AS id, f.*, g.group_name, t.topic_id, t.title AS topic_title, u.full_name lecturer_name, " +
+            "(SELECT TOP 1 file_name FROM submissions s WHERE s.group_id = g.group_id ORDER BY s.created_at DESC) AS attachment_name, " +
+            "(SELECT TOP 1 file_url FROM submissions s WHERE s.group_id = g.group_id ORDER BY s.created_at DESC) AS attachment_url " +
+            "FROM feedbacks f " +
+            "JOIN project_groups g ON g.group_id = f.group_id " +
+            "JOIN topics t ON t.topic_id = g.topic_id " +
+            "JOIN lecturers l ON l.lecturer_id = f.lecturer_id " +
+            "JOIN users u ON u.user_id = l.user_id " +
+            "WHERE l.user_id = ? ORDER BY f.created_at DESC", userId);
+    }
+    public Map<String,Object> getLecturerFeedbackStats(long userId) throws SQLException {
+        return one("SELECT " +
+            "(SELECT COUNT(*) FROM feedbacks f JOIN lecturers l ON l.lecturer_id = f.lecturer_id WHERE l.user_id = ?) AS total_feedbacks, " +
+            "(SELECT COUNT(*) FROM feedbacks f JOIN lecturers l ON l.lecturer_id = f.lecturer_id WHERE l.user_id = ?) AS sent_feedbacks, " +
+            "(SELECT COUNT(*) FROM project_groups g JOIN topics t ON t.topic_id = g.topic_id JOIN lecturers l ON l.lecturer_id = t.lecturer_id WHERE l.user_id = ? AND g.group_id NOT IN (SELECT group_id FROM feedbacks)) AS pending_feedbacks, " +
+            "(SELECT COUNT(DISTINCT g.group_id) FROM project_groups g JOIN topics t ON t.topic_id = g.topic_id JOIN lecturers l ON l.lecturer_id = t.lecturer_id WHERE l.user_id = ? AND g.group_id IN (SELECT group_id FROM feedbacks)) AS student_groups",
+            userId, userId, userId, userId);
+    }
+    public int updateFeedback(long feedbackId, long lecturerId, String content) throws SQLException {
+        if (content == null || content.trim().isEmpty()) throw new SQLException("Nội dung nhận xét là bắt buộc");
+        return update("UPDATE feedbacks SET content=?, updated_at=SYSDATETIME() WHERE feedback_id=? AND lecturer_id=?", content, feedbackId, lecturerId);
+    }
+    public int deleteFeedback(long feedbackId, long lecturerId) throws SQLException {
+        return update("DELETE FROM feedbacks WHERE feedback_id=? AND lecturer_id=?", feedbackId, lecturerId);
+    }
     public List<Map<String,Object>> submissions(long groupId) throws SQLException {
         return query("SELECT sub.submission_id AS id,sub.*,u.full_name submitted_by_name FROM submissions sub " +
             "JOIN students s ON s.student_id=sub.submitted_by_id JOIN users u ON u.user_id=s.user_id " +
@@ -48,4 +74,14 @@ public class ReportDao extends BaseDao {
         return one("SELECT submission_id AS id,* FROM submissions WHERE submission_id=?",id);
     }
     public int deleteSubmission(long id) throws SQLException { return update("DELETE FROM submissions WHERE submission_id=?",id); }
+
+    public long submit(long groupId, long userId, String fileName, String url, String type) throws SQLException {
+        if (fileName == null || fileName.trim().isEmpty()) throw new SQLException("Tên tài liệu là bắt buộc");
+        if (url == null || url.trim().isEmpty()) throw new SQLException("Đường dẫn file là bắt buộc");
+        Long studentId = new GroupDao().studentIdByUser(userId);
+        long subBy = studentId != null ? studentId : 1;
+        String fileType = "Biểu mẫu".equals(type) ? "PROPOSAL" : ("Quy định".equals(type) ? "PROGRESS" : "OTHER");
+        return insert("INSERT INTO submissions(group_id,type,file_name,file_url,submitted_by_id) VALUES(?,?,?,?,?)",
+            groupId, fileType, fileName.trim(), url.trim(), subBy);
+    }
 }

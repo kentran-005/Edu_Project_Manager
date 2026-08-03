@@ -44,7 +44,7 @@ public class GroupDao extends BaseDao {
         update("INSERT INTO group_members(group_id,student_id,role) VALUES(?,?,'MEMBER')",group.get("id"),studentId);
     }
     public Map<String,Object> find(long id) throws SQLException {
-        return one("SELECT g.group_id AS id,g.*,t.title topic_title,s.name semester_name,u.full_name lecturer_name " +
+        return one("SELECT g.group_id AS id,g.*,t.title topic_title,s.name semester_name,u.full_name lecturer_name,u.email lecturer_email " +
             "FROM project_groups g LEFT JOIN topics t ON t.topic_id=g.topic_id " +
             "LEFT JOIN lecturers l ON l.lecturer_id=t.lecturer_id LEFT JOIN users u ON u.user_id=l.user_id " +
             "JOIN semesters s ON s.semester_id=g.semester_id WHERE g.group_id=?",id);
@@ -63,11 +63,22 @@ public class GroupDao extends BaseDao {
     }
     public List<Map<String,Object>> groupsForUser(long userId,String role) throws SQLException {
         if("ADMIN".equals(role)) return query("SELECT g.group_id AS id,g.*,t.title topic_title FROM project_groups g LEFT JOIN topics t ON t.topic_id=g.topic_id ORDER BY g.created_at DESC");
-        if("LECTURER".equals(role)) return query("SELECT g.group_id AS id,g.*,t.title topic_title FROM project_groups g JOIN topics t ON t.topic_id=g.topic_id " +
+        if("LECTURER".equals(role)) return query("SELECT g.group_id AS id,g.*,t.title topic_title, " +
+            "COALESCE((SELECT COUNT(*) FROM group_members gm WHERE gm.group_id=g.group_id),0) AS member_count " +
+            "FROM project_groups g JOIN topics t ON t.topic_id=g.topic_id " +
             "JOIN lecturers l ON l.lecturer_id=t.lecturer_id WHERE l.user_id=? ORDER BY g.created_at DESC",userId);
         return query("SELECT g.group_id AS id,g.*,t.title topic_title,gm.role member_role FROM project_groups g " +
             "JOIN group_members gm ON gm.group_id=g.group_id JOIN students s ON s.student_id=gm.student_id " +
             "LEFT JOIN topics t ON t.topic_id=g.topic_id WHERE s.user_id=? ORDER BY g.created_at DESC",userId);
+    }
+    public Map<String,Object> getLecturerGroupStats(long userId) throws SQLException {
+        return one("SELECT " +
+            "COUNT(*) AS total_groups, " +
+            "COALESCE(SUM(CASE WHEN g.status = 'IN_PROGRESS' THEN 1 ELSE 0 END), 0) AS in_progress_groups, " +
+            "COALESCE(SUM(CASE WHEN g.status = 'COMPLETED' THEN 1 ELSE 0 END), 0) AS completed_groups, " +
+            "COALESCE(SUM(CASE WHEN g.status IN ('FORMING','REGISTERED') THEN 1 ELSE 0 END), 0) AS forming_groups " +
+            "FROM project_groups g JOIN topics t ON t.topic_id = g.topic_id JOIN lecturers l ON l.lecturer_id = t.lecturer_id " +
+            "WHERE l.user_id = ?", userId);
     }
     public long register(long groupId,long topicId,String note,long userId) throws SQLException {
         Map<String,Object> member=membership(groupId,userId);
@@ -88,9 +99,21 @@ public class GroupDao extends BaseDao {
         return insert("INSERT INTO project_registrations(group_id,topic_id,status,note) VALUES(?,?,'PENDING',?)",groupId,topicId,note);
     }
     public List<Map<String,Object>> registrationsForLecturer(long userId) throws SQLException {
-        return query("SELECT r.registration_id AS id,r.*,g.group_name,t.title topic_title FROM project_registrations r " +
+        return query("SELECT r.registration_id AS id, r.*, g.group_name, t.title topic_title, " +
+            "COALESCE((SELECT COUNT(*) FROM group_members gm WHERE gm.group_id = g.group_id), 0) AS member_count " +
+            "FROM project_registrations r " +
             "JOIN project_groups g ON g.group_id=r.group_id JOIN topics t ON t.topic_id=r.topic_id " +
-            "JOIN lecturers l ON l.lecturer_id=t.lecturer_id WHERE l.user_id=? ORDER BY r.created_at DESC",userId);
+            "JOIN lecturers l ON l.lecturer_id=t.lecturer_id WHERE l.user_id=? ORDER BY r.created_at DESC", userId);
+    }
+    public Map<String,Object> getLecturerRegistrationStats(long userId) throws SQLException {
+        return one("SELECT " +
+            "COUNT(*) AS total_registrations, " +
+            "COALESCE(SUM(CASE WHEN r.status = 'PENDING' THEN 1 ELSE 0 END), 0) AS pending_registrations, " +
+            "COALESCE(SUM(CASE WHEN r.status = 'APPROVED' THEN 1 ELSE 0 END), 0) AS approved_registrations, " +
+            "COALESCE(SUM(CASE WHEN r.status = 'REJECTED' THEN 1 ELSE 0 END), 0) AS rejected_registrations " +
+            "FROM project_registrations r " +
+            "JOIN topics t ON t.topic_id = r.topic_id JOIN lecturers l ON l.lecturer_id = t.lecturer_id " +
+            "WHERE l.user_id = ?", userId);
     }
     public void review(final long registrationId,final long lecturerId,final String status,final String note) throws SQLException {
         if (!"APPROVED".equals(status) && !"REJECTED".equals(status))

@@ -26,8 +26,18 @@ public class AdminServlet extends HttpServlet {
             }else if("/classes".equals(path)){
                 req.setAttribute("classes",admin.classes());
                 req.setAttribute("lecturers",admin.lecturers());
-            }else if("/semesters".equals(path)) req.setAttribute("semesters",admin.semesters());
-            else {resp.sendError(404);return;}
+            }else if("/semesters".equals(path)) {
+                req.setAttribute("semesters",admin.semesters());
+            }else if("/topics".equals(path)) {
+                req.setAttribute("topics",admin.adminTopics());
+                req.setAttribute("semesters",admin.semesters());
+                req.setAttribute("classes",admin.classes());
+                req.setAttribute("lecturers",admin.lecturers());
+            }else if("/groups".equals(path)) {
+                req.setAttribute("groups",admin.adminGroups());
+                req.setAttribute("semesters",admin.semesters());
+                req.setAttribute("classes",admin.classes());
+            }else {resp.sendError(404);return;}
             req.getRequestDispatcher("/WEB-INF/views/admin"+path+".jsp").forward(req,resp);
         }catch(Exception ex){throw new ServletException(ex);}
     }
@@ -46,11 +56,33 @@ public class AdminServlet extends HttpServlet {
                 admin.createClass(req.getParameter("code"),req.getParameter("name"),req.getParameter("major"),
                     intOrNull(req.getParameter("intakeYear")),longOrNull(req.getParameter("advisorId")));
                 WebUtils.flashMessage(req,"Thêm lớp thành công");
+            }else if("/update-class".equals(path)){
+                admin.updateClass(RequestUtils.longValue(req,"id","Thiếu mã lớp cần sửa"),req.getParameter("name"),req.getParameter("major"),
+                    intOrNull(req.getParameter("intakeYear")),longOrNull(req.getParameter("advisorId")));
+                path="/classes";
+                WebUtils.flashMessage(req,"Cập nhật lớp thành công");
             }else if("/semesters".equals(path)){
                 admin.createSemester(req.getParameter("code"),req.getParameter("name"),
                     requiredDate(req.getParameter("startDate"),"Ngày bắt đầu là bắt buộc"),requiredDate(req.getParameter("endDate"),"Ngày kết thúc là bắt buộc"),
                     dateOrNull(req.getParameter("registrationDeadline")),req.getParameter("status"));
                 WebUtils.flashMessage(req,"Thêm học kỳ thành công");
+            }else if("/update-semester".equals(path)){
+                admin.updateSemester(RequestUtils.longValue(req,"id","Thiếu mã học kỳ cần sửa"),req.getParameter("name"),
+                    requiredDate(req.getParameter("startDate"),"Ngày bắt đầu là bắt buộc"),requiredDate(req.getParameter("endDate"),"Ngày kết thúc là bắt buộc"),
+                    dateOrNull(req.getParameter("registrationDeadline")),req.getParameter("status"));
+                path="/semesters";
+                WebUtils.flashMessage(req,"Cập nhật học kỳ thành công");
+            }else if("/topics".equals(path)){
+                admin.createTopic(RequestUtils.longValue(req,"lecturerId","Vui lòng chọn giảng viên hướng dẫn"),
+                    RequestUtils.longValue(req,"semesterId","Vui lòng chọn học kỳ"),
+                    req.getParameter("title"),req.getParameter("description"),
+                    req.getParameter("requirements"),req.getParameter("technology"),3,req.getParameter("status"));
+                WebUtils.flashMessage(req,"Thêm đề tài thành công");
+            }else if("/update-topic".equals(path)){
+                admin.updateTopic(RequestUtils.longValue(req,"id","Thiếu mã đề tài cần sửa"),
+                    req.getParameter("title"),req.getParameter("description"),req.getParameter("status"));
+                path="/topics";
+                WebUtils.flashMessage(req,"Cập nhật đề tài thành công");
             }else if("/user-status".equals(path)){
                 users.changeStatus(RequestUtils.longValue(req,"id","Thiếu tài khoản cần cập nhật trạng thái"),req.getParameter("status"));
                 path="/users";

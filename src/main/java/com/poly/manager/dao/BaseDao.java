@@ -26,7 +26,7 @@ public abstract class BaseDao {
         return rows;
     }
 
-    protected Map<String,Object> one(String sql, Object... params) throws SQLException {
+    public Map<String,Object> one(String sql, Object... params) throws SQLException {
         List<Map<String,Object>> rows = query(sql, params);
         return rows.isEmpty() ? null : rows.get(0);
     }

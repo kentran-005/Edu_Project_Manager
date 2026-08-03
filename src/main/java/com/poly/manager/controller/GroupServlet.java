@@ -18,11 +18,12 @@ public class GroupServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
         User user=(User)req.getSession().getAttribute("currentUser");
         try{
-            String path=req.getPathInfo();
+            String path = req.getPathInfo();
+            boolean isLecturer = "LECTURER".equals(user.getRole());
             if(path!=null && path.matches("/\\d+")){
                 long id=Long.parseLong(path.substring(1));
                 boolean allowed="ADMIN".equals(user.getRole())
-                    || ("LECTURER".equals(user.getRole()) && groups.isSupervisor(id,user.getId()))
+                    || (isLecturer && groups.isSupervisor(id,user.getId()))
                     || ("STUDENT".equals(user.getRole()) && groups.membership(id,user.getId())!=null);
                 if(!allowed){resp.sendError(403);return;}
                 req.setAttribute("group",groups.find(id));req.setAttribute("members",groups.members(id));
@@ -30,12 +31,15 @@ public class GroupServlet extends HttpServlet {
                 req.setAttribute("submissions",new ReportDao().submissions(id));
                 req.setAttribute("feedbacks",new ReportDao().feedbackByGroup(id));
                 req.setAttribute("grades",new GradeDao().byGroup(id));
-                req.getRequestDispatcher("/WEB-INF/views/student/group-detail.jsp").forward(req,resp);return;
+                req.getRequestDispatcher("/WEB-INF/views/" + (isLecturer ? "lecturer" : "student") + "/group-detail.jsp").forward(req,resp);return;
+            }
+            if (isLecturer) {
+                req.setAttribute("stats", groups.getLecturerGroupStats(user.getId()));
             }
             req.setAttribute("groups",groups.groupsForUser(user.getId(),user.getRole()));
             req.setAttribute("semesters",admin.semesters());
             req.setAttribute("topics",topics.findAll(null,"OPEN"));
-            req.getRequestDispatcher("/WEB-INF/views/student/groups.jsp").forward(req,resp);
+            req.getRequestDispatcher("/WEB-INF/views/" + (isLecturer ? "lecturer" : "student") + "/groups.jsp").forward(req,resp);
         }catch(Exception ex){throw new ServletException(ex);}
     }
 

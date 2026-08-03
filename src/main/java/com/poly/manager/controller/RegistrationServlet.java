@@ -13,11 +13,13 @@ import java.io.IOException;
 public class RegistrationServlet extends HttpServlet {
     private final GroupDao groups=new GroupDao();
     private final TopicDao topics=new TopicDao();
+    private final com.poly.manager.service.EmailService emailService=new com.poly.manager.service.EmailService();
     protected void doGet(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
         User user=(User)req.getSession().getAttribute("currentUser");
         try{
-            req.setAttribute("registrations",groups.registrationsForLecturer(user.getId()));
-            req.getRequestDispatcher("/WEB-INF/views/lecturer/registrations.jsp").forward(req,resp);
+            req.setAttribute("stats", groups.getLecturerRegistrationStats(user.getId()));
+            req.setAttribute("registrations", groups.registrationsForLecturer(user.getId()));
+            req.getRequestDispatcher("/WEB-INF/views/lecturer/registrations.jsp").forward(req, resp);
         }catch(Exception ex){throw new ServletException(ex);}
     }
     protected void doPost(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
@@ -25,8 +27,11 @@ public class RegistrationServlet extends HttpServlet {
         try{
             Long lecturerId=topics.lecturerIdByUser(user.getId());
             if(lecturerId==null) throw new IllegalArgumentException("Tài khoản chưa được gắn hồ sơ giảng viên");
-            groups.review(RequestUtils.longValue(req,"id","Thiếu đăng ký cần xử lý"),lecturerId,
-                RequestUtils.text(req,"status"),RequestUtils.text(req,"note"));
+            long regId=RequestUtils.longValue(req,"id","Thiếu đăng ký cần xử lý");
+            String status=RequestUtils.text(req,"status");
+            String note=RequestUtils.text(req,"note");
+            groups.review(regId,lecturerId,status,note);
+            emailService.notifyStudentsOnTopicReview(regId,status,note);
             WebUtils.flashMessage(req,"Đã xử lý đăng ký đề tài");
             resp.sendRedirect(req.getContextPath()+"/lecturer/registrations");
         }catch(Exception ex){req.setAttribute("error",ex.getMessage());doGet(req,resp);}

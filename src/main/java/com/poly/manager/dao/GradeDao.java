@@ -28,4 +28,19 @@ public class GradeDao extends BaseDao {
             "LEFT JOIN topics t ON t.topic_id=pg.topic_id LEFT JOIN lecturers l ON l.lecturer_id=g.graded_by_id " +
             "LEFT JOIN users u ON u.user_id=l.user_id WHERE s.user_id=? AND g.status='PUBLISHED'",userId);
     }
+    public List<Map<String,Object>> gradesForLecturer(long userId) throws SQLException {
+        return query("SELECT g.grade_id AS id, g.*, s.student_code, u.full_name student_name, pg.group_name, t.topic_id, t.title topic_title " +
+            "FROM grades g " +
+            "JOIN students s ON s.student_id=g.student_id JOIN users u ON u.user_id=s.user_id " +
+            "JOIN project_groups pg ON pg.group_id=g.group_id JOIN topics t ON t.topic_id=pg.topic_id " +
+            "JOIN lecturers l ON l.lecturer_id=g.graded_by_id WHERE l.user_id=? ORDER BY g.updated_at DESC", userId);
+    }
+    public Map<String,Object> getLecturerGradeStats(long userId) throws SQLException {
+        return one("SELECT " +
+            "(SELECT COUNT(*) FROM grades g JOIN lecturers l ON l.lecturer_id = g.graded_by_id WHERE l.user_id = ?) AS total_grades, " +
+            "(SELECT COUNT(*) FROM grades g JOIN lecturers l ON l.lecturer_id = g.graded_by_id WHERE l.user_id = ? AND g.status = 'PUBLISHED') AS published_grades, " +
+            "(SELECT COUNT(*) FROM grades g JOIN lecturers l ON l.lecturer_id = g.graded_by_id WHERE l.user_id = ? AND g.status = 'DRAFT') AS draft_grades, " +
+            "(SELECT AVG(CAST(g.score AS DECIMAL(5,2))) FROM grades g JOIN lecturers l ON l.lecturer_id = g.graded_by_id WHERE l.user_id = ?) AS average_score",
+            userId, userId, userId, userId);
+    }
 }

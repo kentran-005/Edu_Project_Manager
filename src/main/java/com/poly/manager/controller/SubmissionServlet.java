@@ -17,6 +17,7 @@ public class SubmissionServlet extends HttpServlet {
     private final ReportDao reports=new ReportDao();
     private final GroupDao groups=new GroupDao();
     private final CloudinaryService cloudinary=new CloudinaryService();
+    private final com.poly.manager.service.EmailService emailService=new com.poly.manager.service.EmailService();
     protected void doPost(HttpServletRequest req,HttpServletResponse resp) throws ServletException,IOException {
         User user=(User)req.getSession().getAttribute("currentUser");
         long groupId=0;
@@ -28,6 +29,7 @@ public class SubmissionServlet extends HttpServlet {
             reports.saveSubmission(groupId,RequestUtils.nullableLong(req,"reportId"),RequestUtils.text(req,"type"),
                 upload.fileName,upload.url,upload.publicId,upload.resourceType,upload.bytes,
                 ((Number)member.get("student_id")).longValue());
+            emailService.notifyLecturerOnProjectSubmission(groupId,upload.fileName,user.getFullName());
             WebUtils.flashMessage(req,"Upload bài nộp thành công");
             resp.sendRedirect(req.getContextPath()+"/groups/"+groupId);
         }catch(Exception ex){

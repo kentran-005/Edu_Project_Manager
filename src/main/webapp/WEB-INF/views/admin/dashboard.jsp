@@ -25,13 +25,13 @@
 			<span>Học kỳ</span><strong>${stats.semesters}</strong><small>Tổng
 				số học kỳ</small><em>Xem chi tiết →</em>
 		</div></a> <a class="admin-stat-card"
-		href="${pageContext.request.contextPath}/topics"><div
+		href="${pageContext.request.contextPath}/admin/topics"><div
 			class="stat-circle">📄</div>
 		<div class="stat-copy">
 			<span>Đề tài</span><strong>${stats.topics}</strong><small>Tổng
 				số đề tài</small><em>Xem chi tiết →</em>
 		</div></a> <a class="admin-stat-card"
-		href="${pageContext.request.contextPath}/groups"><div
+		href="${pageContext.request.contextPath}/admin/groups"><div
 			class="stat-circle">👥</div>
 		<div class="stat-copy">
 			<span>Nhóm dự án</span><strong>${stats.groups}</strong><small>Tổng
